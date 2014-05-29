@@ -5,7 +5,7 @@ title: Overview
 partof: reflection
 num: 1
 outof: 7
-languages: [ja]
+languages: [ja, cn]
 ---
 
 <span class="label important" style="float: right;">EXPERIMENTAL</span>
