@@ -126,37 +126,29 @@ abstract syntax trees for use in a macro. In most cases, this involves methods
 
 ## 常量
 
-Certain expressions that the Scala specification calls *constant expressions*
-can be evaluated by the Scala compiler at compile time. The following kinds of
-expressions are compile-time constants (see section 6.24 of the
-[Scala language specification](http://www.scala-lang.org/docu/files/ScalaReference.pdf)):
+Scala编译器会在编译期对某些Scala规范称为*常量表达式*的表达式进行求值计算。下面几种表达式是编译期常量（参考[Scala语言规范](http://www.scala-lang.org/docu/files/ScalaReference.pdf)的6.24节）：
 
-1. Literals of primitive value classes ([Byte](http://www.scala-lang.org/api/current/index.html#scala.Byte), [Short](http://www.scala-lang.org/api/current/index.html#scala.Short), [Int](http://www.scala-lang.org/api/current/index.html#scala.Int), [Long](http://www.scala-lang.org/api/current/index.html#scala.Long), [Float](http://www.scala-lang.org/api/current/index.html#scala.Float), [Double](http://www.scala-lang.org/api/current/index.html#scala.Double), [Char](http://www.scala-lang.org/api/current/index.html#scala.Char), [Boolean](http://www.scala-lang.org/api/current/index.html#scala.Boolean) and [Unit](http://www.scala-lang.org/api/current/index.html#scala.Unit)) - represented directly as the corresponding type.
+1. 原子值类的字面常量（[Byte](http://www.scala-lang.org/api/current/index.html#scala.Byte), [Short](http://www.scala-lang.org/api/current/index.html#scala.Short), [Int](http://www.scala-lang.org/api/current/index.html#scala.Int), [Long](http://www.scala-lang.org/api/current/index.html#scala.Long), [Float](http://www.scala-lang.org/api/current/index.html#scala.Float), [Double](http://www.scala-lang.org/api/current/index.html#scala.Double), [Char](http://www.scala-lang.org/api/current/index.html#scala.Char), [Boolean](http://www.scala-lang.org/api/current/index.html#scala.Boolean) 以及 [Unit](http://www.scala-lang.org/api/current/index.html#scala.Unit)） - 用对应类型直接表示。
 
-2. String literals - represented as instances of the string.
+2. 字符串常量 - 表示为字符串实例。
 
-3. References to classes, typically constructed with [scala.Predef#classOf](http://www.scala-lang.org/api/current/index.html#scala.Predef$@classOf[T]:Class[T]) - represented as [types](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Types$Type).
+3. 对类的引用，通常用[scala.Predef#classOf](http://www.scala-lang.org/api/current/index.html#scala.Predef$@classOf[T]:Class[T])构造 - 表示为[类型](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Types$Type)。
 
-4. References to Java enumeration values - represented as [symbols](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Symbols$Symbol).
+4. 对Java枚举值的引用 - 表示为[符号](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Symbols$Symbol).
 
-Constant expressions are used to represent
+常量表达式用于表示
 
-- literals in abstract syntax trees (see `scala.reflect.api.Trees#Literal`), and
-- literal arguments for Java class file annotations (see `scala.reflect.api.Annotations#LiteralArgument`).
+- 抽象语法树中的文字 (见`scala.reflect.api.Trees#Literal`)，
+- Java类文件中注解的文字参数(见 `scala.reflect.api.Annotations#LiteralArgument`)。
 
-Example:
+例子：
 
     Literal(Constant(5))
 
-The above expression creates an AST representing the integer literal `5` in
-Scala source code.
+上面表达式创建了一个表示Scala源码中整数常量`5`的AST。
 
-`Constant` is an example of a "virtual case class", _i.e.,_ a class whose
-instances can be constructed and matched against as if it were a case class.
-Both types `Literal` and `LiteralArgument` have a `value` method returning the
-compile-time constant underlying the literal.
-
-Examples:
+`Constant`是一种“虚拟分支类”，*例如，*能够建实例并像分之类那样进行匹配的类。`Literal`和`LiteralArgument`都有`value`方法返回文字代表的编译期常量。
+例子：
 
     Constant(true) match {
       case Constant(s: String)  => println("A string: " + s)
@@ -165,20 +157,11 @@ Examples:
     }
     assert(Constant(true).value == true)
 
-Class references are represented as instances of
-`scala.reflect.api.Types#Type`. Such a reference can be converted to a runtime
-class using the `runtimeClass` method of a `RuntimeMirror` such as
-`scala.reflect.runtime.currentMirror`. (This conversion from a type to a
-runtime class is necessary, because when the Scala compiler processes a class
-reference, the underlying runtime class might not yet have been compiled.)
+类的引用表示为`scala.reflect.api.Types#Type`的实例。这种引用可以用`RuntimeMirror`（比如`scala.reflect.runtime.currentMirror`）的`runtimeClass`方法转换成运行时类。（这种从类型到运行时类的转换是必须的，因为在Scala编译器处理类引用时，真正的运行时类可能还没编译出来。）
 
-Java enumeration value references are represented as symbols (instances of
-`scala.reflect.api.Symbols#Symbol`), which on the JVM point to methods that
-return the underlying enumeration values. A `RuntimeMirror` can be used to
-inspect an underlying enumeration or to get the runtime value of a reference
-to an enumeration.
+Java枚举值引用表示为符号（`scala.reflect.api.Symbols#Symbol`的实例），在JVM上指向返回相关枚举值的方法。可以用`RuntimeMirror`检查相关枚举或得到所引用枚举的运行时值。
 
-Example:
+例子：
 
     // Java source:
     enum JavaSimpleEnumeration { FOO, BAR }
@@ -229,17 +212,14 @@ Example:
       println(enumValue)                 // BAR
     }
 
-## Printers
+## 打印
 
-Utilities for nicely printing
-[`Trees`](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Trees) and
-[`Types`](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Types).
+能很好地打印[`树`](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Trees) and
+[`类型`](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Types)的工具。
 
-### Printing Trees
+### 打印树
 
-The method `show` displays the "prettified" representation of reflection
-artifacts. This representation provides one with the desugared Java
-representation of Scala code. For example:
+方法`show`展示反射对象的“美化”表示。这种表示提供脱掉Scala语法糖衣之后的Java表示。例如：
 
     scala> import scala.reflect.runtime.universe._
     import scala.reflect.runtime.universe._
@@ -260,15 +240,9 @@ representation of Scala code. For example:
       ()
     }
 
-The method `showRaw` displays the internal structure of a given reflection
-object as a Scala abstract syntax tree (AST), the representation that the
-Scala typechecker operates on.
+方法`showRaw`展示给定反射对象作为Scala抽象语法树（AST）的内部结构，Scala类型检查器工作在AST之上。
 
-Note that while this representation appears to generate correct trees that one
-might think would be possible to use in a macro implementation, this is not
-usually the case. Symbols aren't fully represented (only their names are).
-Thus, this method is best-suited for use simply inspecting ASTs given some
-valid Scala code.
+注意，因为这个表示看上去像生成了正确的树，可能有人认为可以在宏实现中使用，通常并不是这样的。符号并没有完全展示出来（只有符号的名称）。所以，这个方法最适合于简单分析给定Scala代码的AST。
 
     scala> showRaw(tree)
     res1: String = Block(List(
@@ -284,7 +258,7 @@ valid Scala code.
             Literal(Constant(2))))))),
       Literal(Constant(())))
 
-The method `showRaw` can also print `scala.reflect.api.Types` next to the artifacts being inspected.
+`showRaw`方法还可以在所检查的对象旁边打印`scala.reflect.api.Types`。
 
     scala> import scala.tools.reflect.ToolBox // requires scala-compiler.jar
     import scala.tools.reflect.ToolBox
@@ -314,9 +288,9 @@ The method `showRaw` can also print `scala.reflect.api.Types` next to the artifa
     [7] TypeRef(ThisType(scala), scala.Int, List())
     [8] ConstantType(Constant(2))
 
-### Printing Types
+### 打印类型
 
-The method `show` can be used to produce a *readable* string representation of a type:
+`show`方法可用于产生类型的*可读*字符串表示：
 
     scala> import scala.reflect.runtime.universe._
     import scala.reflect.runtime.universe._
@@ -327,9 +301,7 @@ The method `show` can be used to produce a *readable* string representation of a
     scala> show(tpe)
     res0: String = scala.AnyRef{def x: Int; val y: scala.List[Int]}
 
-Like the method `showRaw` for `scala.reflect.api.Trees`, `showRaw` for
-`scala.reflect.api.Types` provides a visualization of the Scala AST operated
-on by the Scala typechecker.
+类似用于`scala.reflect.api.Trees`的`showRaw`方法，用于`scala.reflect.api.Types`的`showRaw`方法提供AST（Scala类型检查器工作在AST之上）的可视化。
 
     scala> showRaw(tpe)
     res1: String = RefinedType(
@@ -338,10 +310,7 @@ on by the Scala typechecker.
         newTermName("x"),
         newTermName("y")))
 
-The `showRaw` method also has named parameters `printIds` and `printKinds`,
-both with default argument `false`. When passing `true` to these, `showRaw`
-additionally shows the unique identifiers of symbols, as well as their kind
-(package, type, method, getter, etc.).
+方法`showRaw`还有定名参数`printIds`和`printKinds`，两者的默认值都是`false`。给这些参数传入`true`时，`showRaw`额外显示符号的唯一标识符和种类（包，类型，方法，读方法，等等）。
 
     scala> showRaw(tpe, printIds = true, printKinds = true)
     res2: String = RefinedType(
@@ -350,41 +319,20 @@ additionally shows the unique identifiers of symbols, as well as their kind
         newTermName("x")#2540#METH,
         newTermName("y")#2541#GET))
 
-## Positions
+## 位置
 
-Positions (instances of the
-[Position](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Position) trait)
-are used to track the origin of symbols and tree nodes. They are commonly used when
-displaying warnings and errors, to indicate the incorrect point in the
-program. Positions indicate a column and line in a source file (the offset
-from the beginning of the source file is called its "point", which is
-sometimes less convenient to use). They also carry the content of the line
-they refer to. Not all trees or symbols have a position; a missing position is
-indicated using the `NoPosition` object.
+位置(特征[Position](http://www.scala-lang.org/api/current/index.html#scala.reflect.api.Position)的实例)
+用于追踪符号和树节点的来源。位置常用于展示警告和错误，指出程序中的错误位置。位置表示源文件的行和列（从源文件开始的偏移量称为“点”，有时用起来不方便）。位置还携带所指向行的内容。不是所有的树和符号都有位置，用`NoPosition`对象表示位置缺失。
 
-Positions can refer either to only a single character in a source file, or to
-a *range*. In the latter case, a *range position* is used (positions that are
-not range positions are also called *offset positions*). Range positions have
-in addition `start` and `end` offsets. The `start` and `end` offsets can be
-"focussed" on using the `focusStart` and `focusEnd` methods which return
-positions (when called on a position which is not a range position, they just
-return `this`).
+位置可以指向源文件中的单个字符或一个*区域*。后一种情况使用*区域位置*（不是区域位置的位置也称为*偏移位置*）。区域位置有附加的`开始`和`结束`偏移量。可以使用`focusStart`和`focusEnd`方法“关注”`开始`和`结束`偏移量，这两个方法返回位置（调用非区域位置时，会返回`自己`）。
 
-Positions can be compared using methods such as `precedes`, which holds if
-both positions are defined (_i.e.,_ the position is not `NoPosition`) and the
-end point of `this` position is not larger than the start point of the given
-position. In addition, range positions can be tested for inclusion (using
-method `includes`) and overlapping (using method `overlaps`).
+可以比较位置，比如用方法`precedes`，这个方法给出是否两个区域都明确（*例如，*不是`NoPosition`），`这个`区域的结束点不大于给定位置的开始点。另外，还可以测试区域位置的包含情况（用`includes`方法）和交叉情况（用`overlaps`方法）。
 
-Range positions are either *transparent* or *opaque* (not transparent). The
-fact whether a range position is opaque or not has an impact on its permitted
-use, because trees containing range positions must satisfy the following
-invariants:
+区域位置或者透明或者不透明。区域是否透明对其允许的使用有影响，因为包含区域的树必须满足下面的不变性：
 
-- A tree with an offset position never contains a child with a range position
-- If the child of a tree with a range position also has a range position, then the child's range is contained in the parent's range.
-- Opaque range positions of children of the same node are non-overlapping (this means their overlap is at most a single point).
+- 带偏移位置的树不能包含带区域位置的孩子
+- 如果带区域位置的树还有带区域位置的孩子，那么孩子的区域必须包含在父的区域内。
+- 同一个节点的孩子们的不透明区域不能交叉（这意味着他们的交叉最多有一个点）。
 
-Using the `makeTransparent` method, an opaque range position can be converted
-to a transparent one; all other positions are returned unchanged.
+用`makeTransparent`方法可以把不透明区域转换成透明区域，其他区域不变。
 
