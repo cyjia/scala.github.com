@@ -1,6 +1,6 @@
 ---
 layout: overview-large
-title: Annotations, Names, Scopes, and More
+title: 注解，名，范围，以及更多
 
 disqus: true
 
