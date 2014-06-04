@@ -1,6 +1,6 @@
 ---
 layout: overview-large
-title: Changes in Scala 2.11
+title: Scala2.11中的变化
 
 partof: reflection
 num: 7
@@ -8,8 +8,8 @@ outof: 7
 language: cn
 ---
 
-<span class="label important" style="float: right;">EXPERIMENTAL</span>
+<span class="label important" style="float: right;">试验中</span>
 
 **Eugene Burmako**
 
-The page lives at [/overviews/macros/changelog211.html](/overviews/macros/changelog211.html).
+此页面的最新版在[/overviews/macros/changelog211.html](/cn/overviews/macros/changelog211.html).
