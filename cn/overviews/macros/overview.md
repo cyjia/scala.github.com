@@ -1,6 +1,6 @@
 ---
 layout: overview-large
-title: Def Macros
+title: 定义宏
 
 disqus: true
 
@@ -8,34 +8,33 @@ partof: macros
 num: 3
 language: cn
 ---
-<span class="label warning" style="float: right;">EXPERIMENTAL</span>
+<span class="label warning" style="float: right;">试验中</span>
 
 **Eugene Burmako**
 
-Def macros are shipped as an experimental feature of Scala since version 2.10.0.
-A subset of def macros, pending a thorough specification, is tentatively scheduled to become stable in one of the future versions of Scala.
+定义宏是Scala2.10.0以后的一个试验性特性。定义宏的一个子集正等待详尽的规范，暂时计划在Scala未来的一个版本中趋于稳定。
 
-## Intuition
+## 直觉 
 
-Here is a prototypical macro definition:
+这是一个原型化的宏定义：
 
     def m(x: T): R = macro implRef
 
-At first glance macro definitions are equivalent to normal function definitions, except for their body, which starts with the conditional keyword `macro` and is followed by a possibly qualified identifier that refers to a static macro implementation method.
+乍看宏定义和普通的函数定义等价，除了宏定义体以条件关键字`macro`开始并且跟着一个指向静态宏实现方法的有效标识符。
 
-If, during type-checking, the compiler encounters an application of the macro `m(args)`, it will expand that application by invoking the corresponding macro implementation method, with the abstract-syntax trees of the argument expressions args as arguments. The result of the macro implementation is another abstract syntax tree, which will be inlined at the call site and will be type-checked in turn.
+如果，在类型检查中编译器遇到宏的申请`m(args)`，编译器会调用宏实现以展开这个申请，以参数表达式参数的抽象语法树作为参数。宏实现的结果是另一个抽象语法树，这个抽象语法树会被内联到调用放并接着进行类型检查。
 
-The following code snippet declares a macro definition assert that references a macro implementation Asserts.assertImpl (definition of assertImpl is provided below):
+下面代码片段声明宏定义assert引用宏实现Asserts.assertImpl（assertImpl的实现在下面）：
 
     def assert(cond: Boolean, msg: Any) = macro Asserts.assertImpl
 
-A call `assert(x < 10, "limit exceeded")` would then lead at compile time to an invocation
+调用`assert(x < 10, "limit exceeded")`会导致编译期调用
 
     assertImpl(c)(<[ x < 10 ]>, <[ “limit exceeded” ]>)
 
-where `c` is a context argument that contains information collected by the compiler at the call site, and the other two arguments are abstract syntax trees representing the two expressions `x < 10` and `limit exceeded`.
+`c`是上下文参数，包含编译器在调用方收集的信息，另两个参数是表示表达式`x < 10`和`limit exceeded`的抽象语法树。
 
-In this document, `<[ expr ]>` denotes the abstract syntax tree that represents the expression expr. This notation has no counterpart in our proposed extension of the Scala language. In reality, the syntax trees would be constructed from the types in trait `scala.reflect.api.Trees` and the two expressions above would look like this:
+本文档中，`<[ expr ]>`表示代表表达式expr的抽象语法树。这个标记在我们建议的Scala语言扩展中没有对应项。实际上，可以用特性`scala.reflect.api.Trees`中的类型构造语法树，上面两个表达式应该是这样：
 
     Literal(Constant("limit exceeded"))
 
@@ -43,7 +42,7 @@ In this document, `<[ expr ]>` denotes the abstract syntax tree that represents 
       Select(Ident(newTermName("x")), newTermName("$less"),
       List(Literal(Constant(10)))))
 
-Here is a possible implementation of the `assert` macro:
+这里是宏`assert`的一个可能实现：
 
     import scala.reflect.macros.Context
     import scala.language.experimental.macros
@@ -58,17 +57,15 @@ Here is a possible implementation of the `assert` macro:
           <[ () ]>
     }
 
-As the example shows, a macro implementation takes several parameter lists. First comes a single parameter, of type `scala.reflect.macros.Context`. This is followed by a list of parameters that have the same names as the macro definition parameters. But where the original macro parameter has type `T`, a macro implementation parameter has type `c.Expr[T]`. `Expr[T]` is a type defined in `Context` that wraps an abstract syntax tree of type `T`. The result type of the `assertImpl` macro implementation is again a wrapped tree, of type `c.Expr[Unit]`.
+如例中所示，宏实现接受几个参数列表。首先是单个参数，类型为`scala.reflect.macros.Context`。接着是一个参数列表，列表中参数和宏定义参数有同样的名字。原始宏参数有类型`T`的地方，宏实现参数有类型`c.Expr[T]`。`Expr[T]`是`Context`中定义的类型用于包装类型`T`的抽象语法树。宏实现`assertImpl`的结果类型又是一个包装的树，类型为`c.Expr[Unit]`。
 
-Also note that macros are considered an experimental and advanced feature, so they need to be enabled explicitly.
-Do that either with `import scala.language.experimental.macros` on per-file basis
-or with `-language:experimental.macros` (providing a compiler switch) on per-compilation basis.
+还要注意，宏是实验性的高级特性，需要明确启用。用文件级的`import scala.language.experimental.macros`或者用编译级的`-language:experimental.macros`(提供编译开关)。
 
-### Generic macros
+### 泛型宏
 
-Macro definitions and macro implementations may both be generic. If a macro implementation has type parameters, actual type arguments must be given explicitly in the macro definition’s body. Type parameters in an implementation may come with `WeakTypeTag` context bounds. In that case the corresponding type tags describing the actual type arguments instantiated at the application site will be passed along when the macro is expanded.
+宏定义和宏实现都可以是泛型。如果宏实现有类型参数，实际的类型参数必须在宏定义体中明确给出。实现中的类型参数会绑定到`WeakTypeTag`上下文。这种情况下，当宏展开时申请方实例化的描述实际类型参数对应的类型标记会一并传入。
 
-The following code snippet declares a macro definition `Queryable.map` that references a macro implementation `QImpl.map`:
+下面的代码片段声明宏定义`Queryable.map`，引用宏实现`QImpl.map`：
 
     class Queryable[T] {
      def map[U](p: T => U): Queryable[U] = macro QImpl.map[T, U]
@@ -80,52 +77,39 @@ The following code snippet declares a macro definition `Queryable.map` that refe
             (p: c.Expr[T => U]): c.Expr[Queryable[U]] = ...
     }
 
-Now consider a value `q` of type `Queryable[String]` and a macro call
+现在考虑一个类型为`Queryable[String]`的值`q`和宏调用
 
     q.map[Int](s => s.length)
 
-The call is expanded to the following reflective macro invocation
+这个调用展开成下面的反射宏调用
 
     QImpl.map(c)(<[ s => s.length ]>)
        (implicitly[WeakTypeTag[String]], implicitly[WeakTypeTag[Int]])
 
-## A complete example
+## 完整例子
 
-This section provides an end-to-end implementation of a `printf` macro, which validates and applies the format string at compile-time.
-For the sake of simplicity the discussion uses console Scala compiler, but as explained below macros are also supported by Maven and SBT.
+本节提供一个端到端实现`printf`宏，这个宏在编译期校验并应用格式化字符串。为了简化，这个讨论用Scala编译器控制台，不过Maven和SBT也支持下面的宏。
 
-Writing a macro starts with a macro definition, which represents the facade of the macro.
-Macro definition is a normal function with anything one might fancy in its signature.
-Its body, though, is nothing more that a reference to an implementation.
-As mentioned above, to define a macro one needs to import `scala.language.experimental.macros`
-or to enable a special compiler switch, `-language:experimental.macros`.
+写一个宏从宏定义开始，它代表宏的外观。宏定义是普通的函数，人们可以在签名中用任何自己喜欢的东西。定义体仅仅是对实现的引用。如上面提到，定义宏需要导入`scala.language.experimental.macros`或启用特殊的编译器开关`-language:experimental.macros`。
 
     import scala.language.experimental.macros
     def printf(format: String, params: Any*): Unit = macro printf_impl
 
-Macro implementation must correspond to macro definitions that use it (typically there's only one, but there might also be many). In a nutshell, every parameter of type `T` in the signature of a macro definition must correspond to a parameter of type `c.Expr[T]` in the signature of a macro implementation. The full list of rules is quite involved, but it's never a problem, because if the compiler is unhappy, it will print the signature it expects in the error message.
+宏实现必须对应使用它的宏定义（通常只有一个，也可能有多个）。简而言之，宏定义签名中的每一个类型`T`的参数必须对应宏实现中类型为`c.Expr[T]`的参数。规则的全部列表相当复杂，不过这从来都不是问题，因为如果编译器不高兴，它会在错误信息中打印它期望的签名。
 
     import scala.reflect.macros.Context
     def printf_impl(c: Context)(format: c.Expr[String], params: c.Expr[Any]*): c.Expr[Unit] = ...
 
-Compiler API is exposed in `scala.reflect.macros.Context`. Its most important part, reflection API, is accessible via `c.universe`.
-It's customary to import `c.universe._`, because it includes a lot of routinely used functions and types
+编译器API暴露在`scala.reflect.macros.Context`。其中最重要的部分，反射API，通过`c.universe`访问。习惯上导入`c.universe._`，因为它包含很多常规使用的函数和类型。
 
     import c.universe._
 
-First of all, the macro needs to parse the provided format string.
-Macros run during the compile-time, so they operate on trees, not on values.
-This means that the format parameter of the `printf` macro will be a compile-time literal, not an object of type `java.lang.String`.
-This also means that the code below won't work for `printf(get_format(), ...)`, because in that case `format` won't be a string literal, but rather an AST that represents a function application.
+首先，宏需要解析提供的格式化字符串。宏在编译期运行，所以他们操作树而不是值。这意味着宏`printf`的format参数会是一个编译期的文字而不是类型为`java.lang.String`的对象。
+这也意味着下面的代码对`printf(get_format(), ...)`不工作，因为这时`format`不是字符常量，而是代表函数的AST。
 
     val Literal(Constant(s_format: String)) = format.tree
 
-Typical macros (and this macro is not an exception) need to create ASTs (abstract syntax trees) which represent Scala code.
-To learn more about generation of Scala code, take a look at [the overview of reflection](http://docs.scala-lang.org/overviews/reflection/overview.html). Along with creating ASTs the code provided below also manipulates types.
-Note how we get a hold of Scala types that correspond to `Int` and `String`.
-Reflection overview linked above covers type manipulations in detail.
-The final step of code generation combines all the generated code into a `Block`.
-Note the call to `reify`, which provides a shortcut for creating ASTs.
+典型的宏（这个宏也不例外）需要创建代表Scala代码的AST（抽象语法树）。要学校更多有关生成Scala代码的内容，请看[反射概览](http://docs.scala-lang.org/cn/overviews/reflection/overview.html)。随着创建AST，下面的代码还操作类型。注意我们如何持有对应`Int`和`String`的Scala类型。上面的反射概览链接详细讲述类型操作。代码生成的最后一步是结合所有生成的代码为一个`Block`。注意对`reify`的调用，这提供了创建AST的快捷方式。
 
     val evals = ListBuffer[ValDef]()
     def precompute(value: Tree, tpe: Type): Ident = {
@@ -145,8 +129,7 @@ Note the call to `reify`, which provides a shortcut for creating ASTs.
     val stats = evals ++ refs.map(ref => reify(print(c.Expr[Any](ref).splice)).tree)
     c.Expr[Unit](Block(stats.toList, Literal(Constant(()))))
 
-The snippet below represents a complete definition of the `printf` macro.
-To follow the example, create an empty directory and copy the code to a new file named `Macros.scala`.
+下面的片段表示宏`printf`的完整定义。仿照这个例子，创建一个空目录，复制代码到名为`Macros.scala`的新文件。
 
     import scala.reflect.macros.Context
     import scala.collection.mutable.{ListBuffer, Stack}
@@ -178,15 +161,14 @@ To follow the example, create an empty directory and copy the code to a new file
       }
     }
 
-To use the `printf` macro, create another file `Test.scala` in the same directory and put the following code into it.
-Note that using a macro is as simple as calling a function. It also doesn't require importing `scala.language.experimental.macros`.
+要使用`printf`宏，在同一个目录下创建另一个文件`Test.scala`并把下面的代码放进去。注意，使用宏和调用函数一样简单。同样不需要导入`scala.language.experimental.macros`。
 
     object Test extends App {
       import Macros._
       printf("hello %s!", "world")
     }
 
-An important aspect of macrology is separate compilation. To perform macro expansion, compiler needs a macro implementation in executable form. Thus macro implementations need to be compiled before the main compilation, otherwise you might see the following error:
+宏技术的重要方面是隔离编译。为执行宏宽展，编译器需要可执行形式的宏实现。所以宏实现必须在主编译之前编译，否则你可能会见到如下的错误：
 
     ~/Projects/Kepler/sandbox$ scalac -language:experimental.macros Macros.scala Test.scala
     Test.scala:3: error: macro implementation not found: printf (the most common reason for that is that
@@ -199,31 +181,31 @@ An important aspect of macrology is separate compilation. To perform macro expan
     ~/Projects/Kepler/sandbox$ scalac Macros.scala && scalac Test.scala && scala Test
     hello world!
 
-## Tips and tricks
+## 提示与技巧
 
-### Using macros with the command-line Scala compiler
+### 和Scala编译器控制台一起用宏
 
-This scenario is covered in the previous section. In short, compile macros and their usages using separate invocations of `scalac`, and everything should work fine. If you use REPL, then it's even better, because REPL processes every line in a separate compilation run, so you'll be able to define a macro and use it right away.
+这个场景出现在前一节。总之，用`scalac`的不同调用编译宏和他们的使用方就万事大吉了。如果你使用REPL，那更好，因为REPL用分离的编译处理每一行，所以你可以定义宏然后马上就用。
 
-### Using macros with Maven or SBT
+### 和Maven或SBT一起用宏
 
-The walkthrough in this guide uses the simplest possible command-line compilation, but macros also work with build tools such as Maven and SBT. Check out [https://github.com/scalamacros/sbt-example](https://github.com/scalamacros/sbt-example) or [https://github.com/scalamacros/maven-example](https://github.com/scalamacros/maven-example) for end-to-end examples, but in a nutshell you only need to know two things:
-* Macros needs scala-reflect.jar in library dependencies.
-* The separate compilation restriction requires macros to be placed in a separate project.
+本指南的演练用尽可能简单的命令行编译，不过宏也能和Maven和SBT之类的构建工具一起使用。看看[https://github.com/scalamacros/sbt-example](https://github.com/scalamacros/sbt-example)或[https://github.com/scalamacros/maven-example](https://github.com/scalamacros/maven-example)的端到端例子，不过简单来说你只需知道两件事：
+* 库依赖中需要scala-reflect.jar。
+* 编译分离的现实要求宏放到不同的项目。
 
-### Using macros with Scala IDE or Intellij IDEA
+### 和Scala IDE或Intellij IDEA一起使用宏
 
-Both in Scala IDE and in Intellij IDEA macros are known to work fine, given they are moved to a separate project.
+在ScalaIDE和Intellij IDEA中宏都能很好工作，只要他们被移到不同的项目。
 
-### Debugging macros
+### 调试宏
 
-Debugging macros (i.e. the logic that drives macro expansion) is fairly straightforward. Since macros are expanded within the compiler, all that you need is to run the compiler under a debugger. To do that, you need to: 1) add all (!) the libraries from the lib directory in your Scala home (which include such jar files as `scala-library.jar`, `scala-reflect.jar` and `scala-compiler.jar`) to the classpath of your debug configuration, 2) set `scala.tools.nsc.Main` as an entry point, 3) provide the `-Dscala.usejavacp=true` system property for the JVM (very important!), 4) set command-line arguments for the compiler as `-cp <path to the classes of your macro> Test.scala`, where `Test.scala` stands for a test file containing macro invocations to be expanded. After all that is done, you should be able to put a breakpoint inside your macro implementation and launch the debugger.
+调试宏（例如，驱动宏扩展的逻辑）很直接。因为宏是在编译器中扩展，所以你只需在调试器中运行编译器。要做到这一点，你需要：1)添加Scala主目录下lib文件夹内的所有(!)库(包括类似`scala-library.jar`，`scala-reflect.jar`和`scala-compiler.jar`等jar文件)到调试配置的类路径，2)设置`scala.tools.nsc.Main`为入口点, 3)给JVM提供系统属性`-Dscala.usejavacp=true`（非常重要!），4) 设置编译器的命令行参数`-cp <宏所在类的路径> Test.scala`，这里`Test.scala`表示包含需要扩展的宏调用的测试文件。这些都做完之后，你应该能在宏实现中添加断点并启动调试器。
 
-What really requires special support in tools is debugging the results of macro expansion (i.e. the code that is generated by a macro). Since this code is never written out manually, you cannot set breakpoints there, and you won't be able to step through it. Scala IDE and Intellij IDEA teams will probably add support for this in their debuggers at some point, but for now the only way to debug macro expansions are diagnostic prints: `-Ymacro-debug-lite` (as described below), which prints out the code emitted by macros, and println to trace the execution of the generated code.
+真正需要工具特别支持的是调试宏展开的结果（例如，宏生成的代码）。因为这部分代码从未手动写出，所以你无从设置断点也无从单步调试。Scala IDE和Intellij IDEA团队将来很可能在他们调试器的某个地方增加支持，不过现在调试宏扩展的唯一方法是诊断性的打印：`-Ymacro-debug-lite`（如下所述），会打印宏生成的代码并打印以追踪所生成代码的执行。
 
-### Inspecting generated code
+### 查看生成的代码
 
-With `-Ymacro-debug-lite` it is possible to see both pseudo-Scala representation of the code generated by macro expansion and raw AST representation of the expansion. Both have their merits: the former is useful for surface analysis, while the latter is invaluable for fine-grained debugging.
+用`-Ymacro-debug-lite`可以看宏扩展生成代码的伪Scala表示和原生AST表示。两者各有长处：前者对浅层分析有用，而后者对细粒度调试非常有用。
 
     ~/Projects/Kepler/sandbox$ scalac -Ymacro-debug-lite Test.scala
     typechecking macro expansion Macros.printf("hello %s!", "world") at
@@ -248,10 +230,9 @@ With `-Ymacro-debug-lite` it is possible to see both pseudo-Scala representation
       List(Literal(Constant("!"))))),
     Literal(Constant(())))
 
-### Macros throwing unhandled exceptions
+### 宏抛出未处理的异常
 
-What happens if macro throws an unhandled exception? For example, let's crash the `printf` macro by providing invalid input.
-As the printout shows, nothing dramatic happens. Compiler guards itself against misbehaving macros, prints relevant part of a stack trace, and reports an error.
+如果宏抛出未处理的异常会发生什么？例如，我们通过提供无效输入来破坏`printf`宏。如输出所示，没什么戏剧性事件发生。编译器对抗坏事的宏，打印相关部分的堆栈并报告错误。
 
     ~/Projects/Kepler/sandbox$ scala
     Welcome to Scala version 2.10.0-20120428-232041-e6d5d22d28 (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_25).
@@ -280,11 +261,9 @@ As the printout shows, nothing dramatic happens. Compiler guards itself against 
                   printf("hello %s!")
                         ^
 
-### Reporting warnings and errors
+### 报告警告和错误
 
-The canonical way to interact with the user is through the methods of `scala.reflect.macros.FrontEnds`.
-`c.error` reports a compilation error, `c.info` issues a warning, `c.abort` reports an error and terminates
-execution of a macro.
+与用户交互的典型方法是用`scala.reflect.macros.FrontEnds`的方法。`c.error`报告编译错误，`c.info`发布警告，`c.abort`报告错误并终止执行宏。
 
     scala> def impl(c: Context) =
       c.abort(c.enclosingPosition, "macro has reported an error")
@@ -298,15 +277,13 @@ execution of a macro.
                   test
                   ^
 
-Note that at the moment reporting facilities don't support multiple warnings or errors per position as described in
-[SI-6910](https://issues.scala-lang.org/browse/SI-6910). This means that only the first error or warning per position
-will be reported, and the others will be lost (also errors trump warnings at the same position, even if those are reported earlier).
+注意，现在报告设施不支持一个位置上多个警告或错误，这在[SI-6910](https://issues.scala-lang.org/browse/SI-6910)有描述。这意味着只会报告一个位置上的第一个错误或警告，其他都会丢失（并且错误覆盖同一位置上的警告，即便警告更早报告）。
 
-### Writing bigger macros
+### 写更大的宏
 
-When the code of a macro implementation grows big enough to warrant modularization beyond the body of the implementation method, it becomes apparent that one needs to carry around the context parameter, because most things of interest are path-dependent on the context.
+当宏实现大到需要在实现体外进行模块化时，明显需要带上参数context，因为多数情况都依赖context。
 
-One of the approaches is to write a class that takes a parameter of type `Context` and then split the macro implementation into a series of methods of that class. This is natural and simple, except that it's hard to get it right. Here's a typical compilation error.
+一种方法是写一个带参数`Context`的类，然后把宏实现分解成那个类的一系列方法。这很自然也很简单，但是很难做对。这儿有个典型的编译错误。
 
     scala> class Helper(val c: Context) {
          | def generate: c.Tree = ???
@@ -325,9 +302,9 @@ One of the approaches is to write a class that takes a parameter of type `Contex
            c.Expr(helper.generate)
                          ^
 
-The problem in this snippet is in a path-dependent type mismatch. The Scala compiler does not understand that `c` in `impl` is the same object as `c` in `Helper`, even though the helper is constructed using the original `c`.
+这个片段的问题是路径依赖类型不匹配。Scala编译器不理解`impl`中的`c`和`Helper`中的`c`是同一个对象，尽管helper是用原始`c`构造的。
 
-Luckily just a small nudge is all that is needed for the compiler to figure out what's going on. One of the possible ways of doing that is using refinement types (the example below is the simplest application of the idea; for example, one could also write an implicit conversion from `Context` to `Helper` to avoid explicit instantiations and simplify the calls).
+幸运的是只需一个微调就能让编译器明白状况。一种可能的方法是使用精细的类型（下面例子是这个想法的最简单应用；例如，还可以写一个从`Context`到`Helper`的隐式转换器以避免隐式实例化病简化调用）。
 
     scala> abstract class Helper {
          | val c: Context
@@ -341,7 +318,7 @@ Luckily just a small nudge is all that is needed for the compiler to figure out 
          | }
     impl: (c1: scala.reflect.macros.Context)c1.Expr[Unit]
 
-An alternative approach is to pass the identity of the context in an explicit type parameter. Note how the constructor of `Helper` uses `c.type` to express the fact that `Helper.c` is the same as the original `c`. Scala's type inference can't figure this out on its own, so we need to help it.
+另一种方法是用明确的类型参数传递context的标识。注意`Helper`的构造器如何使用`c.type`来表达`Helper.c`和原始`c`相同的事实。Scala的类型推断自己不能解决，所以我们需要帮助它。
 
     scala> class Helper[C <: Context](val c: C) {
          | def generate: c.Tree = ???
