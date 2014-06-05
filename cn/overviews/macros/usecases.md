@@ -1,6 +1,6 @@
 ---
 layout: overview-large
-title: Use Cases
+title: 用例
 
 disqus: true
 
@@ -9,21 +9,12 @@ num: 1
 language: cn
 ---
 
-<span class="label warning" style="float: right;">EXPERIMENTAL</span>
+<span class="label warning" style="float: right;">试验中</span>
 
 **Eugene Burmako**
 
-Since their release as an experimental feature of Scala 2.10, macros have brought previously impossible or prohibitively complex things
-to the realm of possible. Both commercial and research users of Scala use macros to bring their ideas to life.
-At EPFL we are leveraging macros to power our research. Typesafe also employs macros in a number of projects.
-Macros are also popular in the community and have already given rise to a number of interesting applications.
+自从在Scala2.10中作为试验特性发布以来，宏已经使得之前不可能或令人望而却步的复杂事情变得可能。商业用户和研究用户都在用宏使他们的想法变成现实。在EPEL我们正在用宏撬动我们的研究。Typesafe也在很多项目中用宏。宏在社区中也很受欢迎并且引起很多有趣的应用。
 
-The recent talk ["What Are Macros Good For?"](http://scalamacros.org/paperstalks/2013-07-17-WhatAreMacrosGoodFor.pdf)
-describes and systemizes uses that macros found among Scala 2.10 users. The thesis of the talk is that macros are good for
-code generation, static checking and DSLs, illustrated with a number of examples from research and industry.
+最近的谈话["宏对什么有好处？"](http://scalamacros.org/paperstalks/2013-07-17-WhatAreMacrosGoodFor.pdf)描述并系统化Scala2.10用户中发现的宏用法。这个谈话的结论是宏对代码生成，静态检查和DSL都有好处，用来自研究和工业的很多例子进行解释。
 
-We have also published a paper in the Scala'13 workshop,
-["Scala Macros: Let Our Powers Combine!"](http://scalamacros.org/paperstalks/2013-04-22-LetOurPowersCombine.pdf),
-covering the state of the art of macrology in Scala 2.10 from a more academic point of view.
-In the paper we show how the rich syntax and static types of Scala synergize with macros and
-explore how macros enable new and unique ways to use pre-existing language features.
+我们还在Scala的第13个工作坊发布了一个论文，["Scala Macros: Let Our Powers Combine!"](http://scalamacros.org/paperstalks/2013-04-22-LetOurPowersCombine.pdf)，包含从更学术观点看Scala2.10最先进的宏技术。在论文中我们展示Scala的丰富预防和静态类型如何与宏协同，还探索宏如何使新的和不同的使用已有语言特性的方法成为可能。
