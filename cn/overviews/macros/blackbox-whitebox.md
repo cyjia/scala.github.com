@@ -1,6 +1,6 @@
 ---
 layout: overview-large
-title: Blackbox Vs Whitebox
+title: 黑盒对白盒
 
 disqus: true
 
@@ -8,28 +8,27 @@ partof: macros
 num: 2
 language: cn
 ---
-<span class="label warning" style="float: right;">EXPERIMENTAL</span>
+<span class="label warning" style="float: right;">试验中</span>
 
 **Eugene Burmako**
 
-Separation of macros into blackbox ones and whitebox ones is implemented in the recent milestone builds of Scala 2.11, starting from 2.11.0-M7 (however, in 2.11.0-M8, the syntax underwent some changes, so this documentation isn't applicable to earlier milestone builds of 2.11). The blackbox/whitebox separation is not implemented in Scala 2.10.x or in macro paradise. Follow the instructions at [http://www.scala-lang.org/download](http://www.scala-lang.org/download) to download and use the latest milestone of 2.11.
+把宏氛围黑盒和白盒是在近期Scala2.11的里程碑构建实现的，从2.11.0-M7开始（不过，在2.11.0-M8语法经历了一些变化，所以本文档对2.11一些早期的里程碑构建不适用）。黑盒白盒分离在Scala2.10.x和宏乐园没有实现。遵照[http://www.scala-lang.org/download](http://www.scala-lang.org/download)的指示下载并使用2.11最新的里程碑构建。
 
-## Why macros work?
+## 为什么宏工作？
 
-With macros becoming a part of the official Scala 2.10 release, programmers in research and industry have found creative ways of using macros to address all sorts of problems, far extending our original expectations.
+随着宏成为2.10官方发布的一部分，研究和工业界的程序员发现了以创新的方式使用宏解决各种问题，极大扩展了我们最初的期望。
 
-In fact, macros became an important part of our ecosystem so quickly that just a couple months after the release of Scala 2.10, when macros were introduced in experimental capacity, we had a Scala language team meeting and decided to standardize macros and make them a full-fledged feature of Scala by 2.12.
+实际上，在Scala2.10发布后的仅仅几个月宏就很快成为我们生态系统的一个重要不发，当宏被引入为实验性能力时，我们开了Scala语言团队会议并决定标准化宏并且在2.12之前使之成为Scala一个功能完善的特性。
 
-Macro flavors are plentiful, so we decided to carefully examine them to figure out which ones should be put in the standard. This entails answering a few important questions. Why are macros working so well? Why do people use them?
+因为宏的口味很丰富，所以我们决定自信检查以决定哪些应该放入标准。这意味着回答几个重要的问题。为什么宏工作的这么好？为什么人们用宏？
 
-Our hypothesis is that this happens because the hard to comprehend notion of metaprogramming expressed in def macros piggybacks on the familiar concept of a typed method call. Thanks to that, the code that users write can absorb more meaning without becoming bloated or losing
-compehensibility.
+我们的推测是这是因为建立在熟悉的类型方法调用概念之上的定义宏所表达的元编程概念很难理解。感谢的是，用户写的代码能有更多的含义而不臃肿或丢失可理解性。
 
-## Blackbox and whitebox macros
+## 黑盒和白盒宏
 
-However sometimes def macros transcend the notion of "just a regular method". For example, it is possible for a macro expansion to yield an expression of a type that is more specific than the return type of a macro. In Scala 2.10, such expansion will retain its precise type as highlighted in the ["Static return type of Scala macros"](http://stackoverflow.com/questions/13669974/static-return-type-of-scala-macros) article at Stack Overflow.
+不过，有时定义宏超越"仅仅是普通方法"的概念。例如，可能宏展开所生成表达式的类型比宏返回类型更具体。在Scala2.10，这种展开会返回它的具体类型，如Stack Overflow的文章["Static return type of Scala macros"](http://stackoverflow.com/questions/13669974/static-return-type-of-scala-macros)。 
 
-This curious feature provides additional flexibility, enabling [fake type providers](http://meta.plasm.us/posts/2013/07/11/fake-type-providers-part-2/), [extended vanilla materialization](/sips/pending/source-locations.html), [fundep materialization](/overviews/macros/implicits.html#fundep_materialization) and [extractor macros](https://github.com/paulp/scala/commit/84a335916556cb0fe939d1c51f27d80d9cf980dc), but it also sacrifices clarity - both for humans and for machines.
+这种奇怪的特点提供附加的灵活性，使[fake type providers](http://meta.plasm.us/posts/2013/07/11/fake-type-providers-part-2/), [extended vanilla materialization](/sips/pending/source-locations.html), [fundep materialization](/overviews/macros/implicits.html#fundep_materialization) and [extractor macros](https://github.com/paulp/scala/commit/84a335916556cb0fe939d1c51f27d80d9cf980dc), but it also sacrifices clarity - both for humans and for machines.
 
 To concretize the crucial distinction between macros that behave just like normal methods and macros that refine their return types, we introduce the notions of blackbox macros and whitebox macros. Macros that faithfully follow their type signatures are called **blackbox macros** as their implementations are irrelevant to understanding their behaviour (could be treated as black boxes). Macros that can't have precise signatures in Scala's type system are called **whitebox macros** (whitebox def macros do have signatures, but these signatures are only approximations).
 
